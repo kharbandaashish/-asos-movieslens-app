@@ -18,7 +18,7 @@ if __name__ == '__main__':
         os.makedirs(log_dir)
     if not os.path.isdir(data_dir):
         os.makedirs(data_dir)
-    logger = Utils.get_logger(log_file, True)
+    logger = Utils.get_logger(True, log_file)
     logger.info("Application - '{}' started".format(app_name))
     logger.info("Reading configuration file")
     conf = Utils.read_config(logger, conf_file)
@@ -47,6 +47,9 @@ if __name__ == '__main__':
             os.makedirs(target_dir)
         logger.info("Downloading top 10 movies")
         Utils.download_files_to_dbfs(logger, 'dbfs:/{}'.format(output_file_dir), target_dir)
-        logger.info("Application - '{}' completed".format(app_name))
+
     else:
         logger.error("Error in uploading files to dbfs. Terminating")
+    logger.info("Cleaning dbfs")
+    Utils.cleanup(logger)
+    logger.info("Application - '{}' completed".format(app_name))

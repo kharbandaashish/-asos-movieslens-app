@@ -14,9 +14,9 @@ def check_if_table_exists(logger, spark, db_name, table_nm):
     return table_flag
 
 
-def stage_ratings_file(logger, spark, db_name, df, ratings_table_name, ratings_update_table_name):
-    logger.debug("Inside stage_ratings_file function in Staging.py")
-    logger.info("Staging ratings file")
+def stage_ratings_files(logger, spark, db_name, df, ratings_table_name, ratings_update_table_name):
+    logger.debug("Inside stage_ratings_files function in Staging.py")
+    logger.info("Staging ratings files")
 
     # Adding yearmo column for paritioning data while writing
     ratings_df = df.withColumn("yearmo", from_unixtime("timestamp", 'yyyyMM'))
@@ -64,11 +64,12 @@ def stage_ratings_file(logger, spark, db_name, df, ratings_table_name, ratings_u
                 {updates_table_name}.timestamp
             )""".format(db_name=db_name, table_name=ratings_table_name,
                         updates_table_name=ratings_update_table_name))
+        logger.info("Staged ratings files, table created/updated - {}.{}".format(db_name, ratings_table_name))
 
 
-def stage_movies_file(logger, spark, db_name, df, table_name):
-    logger.debug("Inside stage_movies_file function in Staging.py")
-    logger.info("Staging movies file")
+def stage_movies_files(logger, spark, db_name, df, table_name):
+    logger.debug("Inside stage_movies_files function in Staging.py")
+    logger.info("Staging movies files")
 
     # Casting columns
     movies_df = df.select(col("movieId").cast("bigint"), col("title"), col("genres"))
@@ -77,17 +78,19 @@ def stage_movies_file(logger, spark, db_name, df, table_name):
     movies_df = movies_df.dropDuplicates(["title"])
 
     movies_df.write.mode("overwrite").format("delta").saveAsTable("{}.{}".format(db_name, table_name))
+    logger.info("Staged movies files, table created - {}.{}".format(db_name, table_name))
 
 
-def stage_tags_File(logger, spark, db_name, df, table_name):
+def stage_tags_files(logger, spark, db_name, df, table_name):
     logger.debug("Inside stage_tags_tile function in Staging.py")
-    logger.info("Staging tags file")
+    logger.info("Staging tags files")
 
     # Casting columns
     tags_df = df.select(col("userId").cast("bigint"), col("movieId").cast("bigint"), col("tag"),
                         col("timestamp").cast("bigint"))
 
     tags_df.write.mode("overwrite").format("delta").saveAsTable("{}.{}".format(db_name, table_name))
+    logger.info("Staged tags files, table created - {}.{}".format(db_name, table_name))
 
 
 def main(logger, spark, conf):
@@ -104,19 +107,19 @@ def main(logger, spark, conf):
     logger.info("Creating staging database - {}".format(database_name))
     spark.sql("CREATE DATABASE IF NOT EXISTS {};".format(database_name))
 
-    # Reading ratings file
-    ratings_df = spark.read.csv("{}/ratings.csv".format(dbfs_dir), header=True)
-    # Staging ratings file
-    stage_ratings_file(logger, spark, database_name, ratings_df, ratings_table_name, ratings_update_table_name)
+    # Reading ratings files
+    ratings_df = spark.read.csv("{}/ratings*.csv".format(dbfs_dir), header=True)
+    # Staging ratings files
+    stage_ratings_files(logger, spark, database_name, ratings_df, ratings_table_name, ratings_update_table_name)
 
-    # Reading movies file
-    movies_df = spark.read.csv("{}/movies.csv".format(dbfs_dir), header=True)
-    # Staging movies file
-    stage_movies_file(logger, spark, database_name, movies_df, movies_table_name)
+    # Reading movies files
+    movies_df = spark.read.csv("{}/movies*.csv".format(dbfs_dir), header=True)
+    # Staging movies files
+    stage_movies_files(logger, spark, database_name, movies_df, movies_table_name)
 
-    # Reading tags file
-    tags_df = spark.read.csv("{}/tags.csv".format(dbfs_dir), header=True)
-    # Staging tags file
-    stage_tags_File(logger, spark, database_name, tags_df, tags_table_name)
+    # Reading tags files
+    tags_df = spark.read.csv("{}/tags*.csv".format(dbfs_dir), header=True)
+    # Staging tags files
+    stage_tags_files(logger, spark, database_name, tags_df, tags_table_name)
 
     logger.info("Staging Completed")

@@ -8,7 +8,7 @@ from pyspark.sql import SparkSession
 from pyspark.dbutils import DBUtils
 
 
-def get_logger(file_name, stream_output):
+def get_logger(stream_output=False, file_name=None):
     log_file = '{}_{}.log'.format(file_name,
                                   datetime.now().strftime('%Y%m%d%H%M%S%f'))
     logging.getLogger("py4j").setLevel(logging.INFO)
@@ -92,3 +92,17 @@ def download_files_to_dbfs(logger, source_dir, target_dir):
         return False
     logger.info("Downloaded {} to {}".format(source_dir, target_dir))
     return True
+
+
+def cleanup(logger):
+    logger.debug("Inside cleanup function in Utils.py")
+    try:
+        subprocess.run(["dbfs", "rm", "dbfs:/ml-latest-small", "--recursive"], check=True)
+        subprocess.run(["dbfs", "rm", "dbfs:/top_10_movies", "--recursive"], check=True)
+    except Exception as e:
+        logger.error(e)
+        return False
+    logger.info("Cleanup complete")
+    return True
+
+
