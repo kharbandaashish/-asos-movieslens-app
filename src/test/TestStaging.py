@@ -95,7 +95,7 @@ class TestStaging(unittest.TestCase):
         df1 = self.spark.createDataFrame(
             (["1", "alpha", "crime|thriller"], ["2", "beta", "crime"], ["2", "delta", "thriller"]),
             ["movieId", "title", "genres"])
-        self.stg.stage_movies_files(self.logger, self.spark, self.database_name, df1, movies_table_name)
+        self.stg.stage_movies_files(self.logger, self.database_name, df1, movies_table_name)
         df2 = self.spark.table("{}.{}".format(self.database_name, movies_table_name))
         output_schema = df2.schema
         self.assertEqual(output_schema, expected_schema)
@@ -106,7 +106,7 @@ class TestStaging(unittest.TestCase):
         df1 = self.spark.createDataFrame(
             (["1", "alpha", "crime|thriller"], ["2", "beta", "crime"], ["2", "delta", "thriller"]),
             ["movieId", "title", "genres"])
-        self.stg.stage_movies_files(self.logger, self.spark, self.database_name, df1, movies_table_name)
+        self.stg.stage_movies_files(self.logger,  self.database_name, df1, movies_table_name)
         expected_output = self.spark.createDataFrame(
             ([1, "alpha", "crime|thriller"], [2, "beta", "crime"], [2, "delta", "thriller"]),
             ["movieId", "title", "genres"]).sort("movieId").collect()
@@ -128,7 +128,7 @@ class TestStaging(unittest.TestCase):
             (
                 ["1", "10", "alpha", "964982703"], ["1", "11", "beta", "998787858"], ["2", "11", "delta", "901787858"]),
             ["userId", "movieId", "tag", "timestamp"])
-        self.stg.stage_tags_files(self.logger, self.spark, self.database_name, df1, tags_table_name)
+        self.stg.stage_tags_files(self.logger, self.database_name, df1, tags_table_name)
         df2 = self.spark.table("{}.{}".format(self.database_name, tags_table_name))
         output_schema = df2.schema
         self.assertEqual(output_schema, expected_schema)
@@ -141,7 +141,7 @@ class TestStaging(unittest.TestCase):
             (
                 ["1", "10", "alpha", "964982703"], ["1", "11", "beta", "998787858"], ["2", "11", "delta", "901787858"]),
             ["userId", "movieId", "tag", "timestamp"])
-        self.stg.stage_tags_files(self.logger, self.spark, self.database_name, df1, tags_table_name)
+        self.stg.stage_tags_files(self.logger, self.database_name, df1, tags_table_name)
         expected_output = self.spark.createDataFrame(
             ([1, 10, "alpha", 964982703], [1, 11, "beta", 998787858], [2, 11, "delta", 901787858]),
             ["userId", "movieId", "tag", "timestamp"]).sort("timestamp").collect()

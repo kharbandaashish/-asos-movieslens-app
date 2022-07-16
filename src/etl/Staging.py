@@ -34,7 +34,7 @@ def stage_ratings_files(logger, spark, db_name, df, ratings_table_name, ratings_
             "{}.{}".format(db_name, ratings_table_name))
         logger.info("Ratings table created")
     elif ratings_table_flag:
-        logger.info("Ratings table exists. Creating  updates table and merging data to existing table")
+        logger.info("Ratings table exists. Creating updates table and merging data to existing table")
         ratings_df.write.partitionBy("yearmo").mode("overwrite").format("delta").saveAsTable(
             "{}.{}".format(db_name, ratings_update_table_name))
         spark.sql("""
