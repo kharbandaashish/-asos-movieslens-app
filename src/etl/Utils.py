@@ -29,7 +29,7 @@ def get_logger(file_name, stream_output):
 
 def get_spark_session(logger, app_name):
     logger.debug("Inside get_spark_session function in Utils.py")
-    spark = SparkSession.builder.config("spark.sql.warehouse.dir", "file:///").appName(app_name).getOrCreate()
+    spark = SparkSession.builder.appName(app_name).getOrCreate()
     return spark
 
 
