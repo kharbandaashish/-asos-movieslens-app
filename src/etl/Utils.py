@@ -1,8 +1,11 @@
+import os
+import glob
 import logging
 import configparser
 import zipfile
 import urllib.request
 import subprocess
+import datetime
 from datetime import datetime
 from pyspark.sql import SparkSession
 from pyspark.dbutils import DBUtils
@@ -54,13 +57,15 @@ def read_config(logger, config_file):
     configs['zip_name'] = config['directory']['zip_name']
     configs['datasets_dir'] = config['directory']['datasets_dir']
     configs['output_file_dir'] = config['directory']['output_file_dir']
-    configs['show_output'] = config['output']['show_output']
+    configs['staging_flag'] = config['controls']['staging_flag']
+    configs['transformations_flag'] = config['controls']['transformations_flag']
+    configs['show_output_flag'] = config['controls']['show_output_flag']
     return configs
 
 
-def download_dataset(logger, url, dir):
+def download_dataset(logger, url, download_dir):
     logger.debug("Inside download_dataset function in Utils.py")
-    urllib.request.urlretrieve(url, dir)
+    urllib.request.urlretrieve(url, download_dir)
     return True
 
 
@@ -83,7 +88,7 @@ def upload_files_to_dbfs(logger, source_dir, target_dir):
     return True
 
 
-def download_files_to_dbfs(logger, source_dir, target_dir):
+def download_files_from_dbfs(logger, source_dir, target_dir):
     logger.debug("Inside download_files_to_dbfs function in Utils.py")
     try:
         subprocess.run(["dbfs", "cp", source_dir, target_dir, "--recursive", "--overwrite"], check=True)
@@ -94,11 +99,22 @@ def download_files_to_dbfs(logger, source_dir, target_dir):
     return True
 
 
+def rename_and_clean_output(logger, file_dir, file_name):
+    logger.debug("Inside rename_and_clean_output function in Utils.py")
+    for filename in glob.glob(file_dir+'/_*'):
+        os.remove(filename)
+    f = glob.glob(file_dir+'/part-*')
+    if f:
+        file_name = "{}_{}.csv".format(file_name, datetime.now().strftime('%Y%m%d%H%M%S'))
+        os.rename(f[0], os.path.join(file_dir, file_name))
+    return True
+
+
 def cleanup(logger):
     logger.debug("Inside cleanup function in Utils.py")
     try:
         subprocess.run(["dbfs", "rm", "dbfs:/ml-latest-small", "--recursive"], check=True)
-        subprocess.run(["dbfs", "rm", "dbfs:/top_10_movies", "--recursive"], check=True)
+        subprocess.run(["dbfs", "rm", "dbfs:/part-123", "--recursive"], check=True)
     except Exception as e:
         logger.error(e)
         return False

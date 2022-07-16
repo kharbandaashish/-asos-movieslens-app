@@ -67,7 +67,7 @@ def stage_ratings_files(logger, spark, db_name, df, ratings_table_name, ratings_
         logger.info("Staged ratings files, table created/updated - {}.{}".format(db_name, ratings_table_name))
 
 
-def stage_movies_files(logger, spark, db_name, df, table_name):
+def stage_movies_files(logger, db_name, df, table_name):
     logger.debug("Inside stage_movies_files function in Staging.py")
     logger.info("Staging movies files")
 
@@ -81,7 +81,7 @@ def stage_movies_files(logger, spark, db_name, df, table_name):
     logger.info("Staged movies files, table created - {}.{}".format(db_name, table_name))
 
 
-def stage_tags_files(logger, spark, db_name, df, table_name):
+def stage_tags_files(logger, db_name, df, table_name):
     logger.debug("Inside stage_tags_tile function in Staging.py")
     logger.info("Staging tags files")
 
@@ -115,11 +115,11 @@ def main(logger, spark, conf):
     # Reading movies files
     movies_df = spark.read.csv("{}/movies*.csv".format(dbfs_dir), header=True)
     # Staging movies files
-    stage_movies_files(logger, spark, database_name, movies_df, movies_table_name)
+    stage_movies_files(logger, database_name, movies_df, movies_table_name)
 
     # Reading tags files
     tags_df = spark.read.csv("{}/tags*.csv".format(dbfs_dir), header=True)
     # Staging tags files
-    stage_tags_files(logger, spark, database_name, tags_df, tags_table_name)
+    stage_tags_files(logger, database_name, tags_df, tags_table_name)
 
     logger.info("Staging Completed")

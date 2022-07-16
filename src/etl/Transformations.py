@@ -50,13 +50,13 @@ def main(logger, spark, conf):
     ratings_table_name = conf["ratings_table_name"]
     output_file_dir = conf["output_file_dir"]
     exploded_movies_table_name = conf["exploded_movies_table_name"]
-    show_output = conf["show_output"]
+    show_output_flag = conf["show_output_flag"]
 
     df1 = split_movies_genres(logger, spark, database_name, movies_table_name, exploded_movies_table_name)
 
     df2 = top_10_movies(logger, spark, database_name, movies_table_name, ratings_table_name, output_file_dir)
-
-    if show_output == "1":
+    logger.info("show_output_flag - {}".format(show_output_flag))
+    if show_output_flag == "1":
         logger.info("Output for genres split - ")
         df1.show(20, False)
         logger.info("Output for top 10 movies based on ratings - ")
