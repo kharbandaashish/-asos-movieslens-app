@@ -68,8 +68,7 @@ def main(logger, spark, conf):
     df2 = top_10_movies(logger, spark, database_name, movies_table_name, ratings_table_name, output_file_dir)
     logger.info("show_output_flag - {}".format(show_output_flag))
     if show_output_flag == "1":
-        logger.info("Output for genres split - ")
-        df1.show(20, False)
-        logger.info("Output for top 10 movies based on ratings - ")
+        logger.info("Displaying outputs for transformations in Console")
+        logger.info(df1.show(20, False))
         df2.show(20, False)
     logger.info("Transformations Completed")
