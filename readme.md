@@ -10,3 +10,6 @@ This is a pyspark based etl app.
 ### Pre-requisites :
 * Databricks Connect - For running spark. 
 * Databricks CLI - For uploading data to databricks file system from local
+
+### Entry-Point for the app
+src/etl/Wrapper.py

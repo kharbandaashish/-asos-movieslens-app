@@ -26,7 +26,6 @@ def get_logger(stream_output=False, file_name=None):
         console.setLevel(logging.DEBUG)
         console.setFormatter(logging.Formatter('[%(asctime)s] - %(levelname)s - %(message)s'))
         logging.getLogger('').addHandler(console)
-
     return logger
 
 
@@ -74,7 +73,7 @@ def unzip_dataset(logger, zip_dir, unzip_dir):
     logger.debug("Inside unzip_dataset function in Utils.py")
     with zipfile.ZipFile(zip_dir, 'r') as z:
         z.extractall(unzip_dir)
-    logger.info("Unzipped in directory - {}".format(unzip_dir))
+    logger.info("Dataset unzipped in directory - {}".format(unzip_dir))
 
 
 def upload_files_to_dbfs(logger, source_dir, target_dir):
@@ -89,7 +88,7 @@ def upload_files_to_dbfs(logger, source_dir, target_dir):
 
 
 def download_files_from_dbfs(logger, source_dir, target_dir):
-    logger.debug("Inside download_files_to_dbfs function in Utils.py")
+    logger.debug("Inside download_files_from_dbfs function in Utils.py")
     try:
         subprocess.run(["dbfs", "cp", source_dir, target_dir, "--recursive", "--overwrite"], check=True)
     except Exception as e:
@@ -108,6 +107,7 @@ def rename_and_clean_output(logger, file_dir, file_name):
         file_name = "{}_{}.csv".format(file_name, datetime.now().strftime('%Y%m%d%H%M%S'))
         os.rename(f[0], os.path.join(file_dir, file_name))
     logger.info("Output cleaned and renamed")
+
 
 def cleanup(logger):
     logger.debug("Inside cleanup function in Utils.py")

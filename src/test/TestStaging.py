@@ -7,15 +7,9 @@ from pyspark.sql.types import *
 from pyspark.sql import SparkSession
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-
 sys.path.insert(1, ROOT_DIR)
 
 from etl import Staging
-
-for path, dirs, files in os.walk(ROOT_DIR):
-    if '__pycache__' in path:
-        continue
-    sys.path.insert(1, path)
 
 
 class TestStaging(unittest.TestCase):
@@ -63,7 +57,7 @@ class TestStaging(unittest.TestCase):
             (["1", "10", "4.5", "964982703"], ["1", "11", "4.0", "998787858"], ["2", "11", "3.0", "901787858"]),
             ["userId", "movieId", "rating", "timestamp"])
         self.stg.stage_ratings_files(self.logger, self.spark, self.database_name, df1, ratings_table_name,
-                                    ratings_update_table_name)
+                                     ratings_update_table_name)
         df2 = self.spark.table("{}.{}".format(self.database_name, ratings_table_name))
         output_schema = df2.schema
         self.assertEqual(output_schema, expected_schema)
@@ -76,7 +70,7 @@ class TestStaging(unittest.TestCase):
             (["1", "10", "4.5", "964982703"], ["1", "11", "4.0", "998787858"], ["2", "11", "3.0", "901787858"]),
             ["userId", "movieId", "rating", "timestamp"])
         self.stg.stage_ratings_files(self.logger, self.spark, self.database_name, df1, ratings_table_name,
-                                    ratings_update_table_name)
+                                     ratings_update_table_name)
         expected_output = self.spark.createDataFrame(
             ([1, 10, 4.5, 964982703, 200007], [1, 11, 4.0, 998787858, 200108], [2, 11, 3.0, 901787858, 199807]),
             ["userId", "movieId", "rating", "timestamp"]).sort("timestamp").collect()
@@ -106,7 +100,7 @@ class TestStaging(unittest.TestCase):
         df1 = self.spark.createDataFrame(
             (["1", "alpha", "crime|thriller"], ["2", "beta", "crime"], ["2", "delta", "thriller"]),
             ["movieId", "title", "genres"])
-        self.stg.stage_movies_files(self.logger,  self.database_name, df1, movies_table_name)
+        self.stg.stage_movies_files(self.logger, self.database_name, df1, movies_table_name)
         expected_output = self.spark.createDataFrame(
             ([1, "alpha", "crime|thriller"], [2, "beta", "crime"], [2, "delta", "thriller"]),
             ["movieId", "title", "genres"]).sort("movieId").collect()

@@ -7,13 +7,12 @@ from pyspark.sql.types import *
 from pyspark.sql import SparkSession
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-
 sys.path.insert(1, ROOT_DIR)
 
 from etl import Transformations
 
-class TestTransformations(unittest.TestCase):
 
+class TestTransformations(unittest.TestCase):
     trn = None
     database_name = "movies_data_test"
 
@@ -38,12 +37,13 @@ class TestTransformations(unittest.TestCase):
     def test_split_movies_genres(self):
         movies_table_name = "movies"
         output_table_name = "exploded_movies"
-        df1 = self.spark.createDataFrame(([1, "alpha", "crime|thriller"], [2, "beta", "crime"], [3, "delta", "thriller"]),
-                                    ["movieId", "title", "genres"])
+        df1 = self.spark.createDataFrame(
+            ([1, "alpha", "crime|thriller"], [2, "beta", "crime"], [3, "delta", "thriller"]),
+            ["movieId", "title", "genres"])
         df1.write.mode("overwrite").format("delta").saveAsTable("{}.{}".format(self.database_name, movies_table_name))
         self.trn.split_movies_genres(self.logger, self.spark, self.database_name, movies_table_name, output_table_name)
         actucal_output = self.spark.table("{}.{}".format(self.database_name, output_table_name)).sort("movieId",
-                                                                                                 "genre").collect()
+                                                                                                      "genre").collect()
         expected_output = self.spark.createDataFrame(
             ([1, "alpha", "crime"], [1, "alpha", "thriller"], [2, "beta", "crime"], [3, "delta", "thriller"]),
             ["movieId", "title", "genre"]).sort("movieId", "genre").collect()
@@ -59,11 +59,12 @@ class TestTransformations(unittest.TestCase):
             ["movieId", "title", "genres"])
         df1.write.mode("overwrite").format("delta").saveAsTable("{}.{}".format(self.database_name, movies_table_name))
         df2 = self.spark.createDataFrame(([1, 1, 4.5, "964982703"], [1, 2, 4.0, "998787858"], [2, 1, 3.0, "901787858"],
-                                     [3, 1, 4.5, "884982703"], [4, 1, 4.5, "901982703"], [5, 1, 4.5, "964882703"],
-                                     [2, 2, 4.5, "964977703"], [1, 1, 4.5, "964982711"], [7, 1, 4.5, "968582703"]),
-                                    ["userId", "movieId", "rating", "timestamp"])
+                                          [3, 1, 4.5, "884982703"], [4, 1, 4.5, "901982703"], [5, 1, 4.5, "964882703"],
+                                          [2, 2, 4.5, "964977703"], [1, 1, 4.5, "964982711"], [7, 1, 4.5, "968582703"]),
+                                         ["userId", "movieId", "rating", "timestamp"])
         df2.write.mode("overwrite").format("delta").saveAsTable("{}.{}".format(self.database_name, ratings_table_name))
-        self.trn.top_10_movies(self.logger, self.spark, self.database_name, movies_table_name, ratings_table_name, output_file)
+        self.trn.top_10_movies(self.logger, self.spark, self.database_name, movies_table_name, ratings_table_name,
+                               output_file)
         actucal_output = self.spark.read.csv(output_file, header=True).select("title").collect()
         schema = StructType([
             StructField('title', StringType(), True)
