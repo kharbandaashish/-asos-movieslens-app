@@ -3,6 +3,10 @@ from pyspark.sql.window import Window
 
 
 def split_movies_genres(logger, spark, db_name, movies_table_name, output_table_name):
+    """
+    Reads movies table and explodes the records if the genres columns has multiple genres separated by '|' and store it
+    in the provided table name in overwrite mode.
+    """
     logger.debug("Inside split_movies_genres function in Transformations.py")
     logger.info("Splitting the movie genres to get a single genre per row")
     # reading movies table in a dataframe
@@ -17,6 +21,10 @@ def split_movies_genres(logger, spark, db_name, movies_table_name, output_table_
 
 
 def top_10_movies(logger, spark, db_name, movies_table_name, ratings_table_name, output_file):
+    """
+    Reads movies & ratings table and create a CSV file with top 10 movies based on the average ratings with atleast
+    5 ratings.
+    """
     logger.debug("Inside top_10_movies function in Transformations.py")
     logger.info("Identify top 10 films by average rating")
     # reading movies table in a dataframe
@@ -43,6 +51,9 @@ def top_10_movies(logger, spark, db_name, movies_table_name, ratings_table_name,
 
 
 def main(logger, spark, conf):
+    """
+    Calls various transformration functions and display output if the show_output_flag is 1
+    """
     logger.info("Transformations Started")
     logger.debug("Inside main function in Transformations.py")
     database_name = conf["database_name"]

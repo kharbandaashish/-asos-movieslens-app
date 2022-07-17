@@ -2,6 +2,9 @@ from pyspark.sql.functions import *
 
 
 def check_if_table_exists(logger, spark, db_name, table_nm):
+    """
+    Checks if provided table already exists in the provided database.
+    """
     logger.debug("Inside check_if_table_exists function in Staging.py")
     logger.info("Checking if ratings table already exists")
     table_flag = False
@@ -15,6 +18,12 @@ def check_if_table_exists(logger, spark, db_name, table_nm):
 
 
 def stage_ratings_files(logger, spark, db_name, df, ratings_table_name, ratings_update_table_name):
+    """
+    Stages the provided ratings dataframe in provided database and delta table after updating the datatypes of
+    the columns.
+    Checks if the table already exists. If table exists it upserts/merges data to existing table.
+    Otherwise create a new delta table.
+    """
     logger.debug("Inside stage_ratings_files function in Staging.py")
     logger.info("Staging ratings files")
 
@@ -69,6 +78,10 @@ def stage_ratings_files(logger, spark, db_name, df, ratings_table_name, ratings_
 
 
 def stage_movies_files(logger, db_name, df, table_name):
+    """
+    Stages the provided movies dataframe in provided database and delta table in overwrite mode after changing the
+    datatypes of columns.
+    """
     logger.debug("Inside stage_movies_files function in Staging.py")
     logger.info("Staging movies files")
 
@@ -83,6 +96,10 @@ def stage_movies_files(logger, db_name, df, table_name):
 
 
 def stage_tags_files(logger, db_name, df, table_name):
+    """
+    Stages the provided tags dataframe in provided database and delta table in overwrite mode after changing the
+    datatypes of columns.
+    """
     logger.debug("Inside stage_tags_tile function in Staging.py")
     logger.info("Staging tags files")
 
@@ -95,6 +112,9 @@ def stage_tags_files(logger, db_name, df, table_name):
 
 
 def main(logger, spark, conf):
+    """
+    Reads CSV files and creates dataframes and calls functions to stage them in delta tables.
+    """
     logger.info("Staging Started")
     logger.debug("Inside main function in Staging.py")
     database_name = conf["database_name"]

@@ -12,6 +12,9 @@ from pyspark.dbutils import DBUtils
 
 
 def get_logger(stream_output=False, file_name=None):
+    """
+    Creates a logger based on config provided and returns its object.
+    """
     log_file = '{}_{}.log'.format(file_name,
                                   datetime.now().strftime('%Y%m%d%H%M%S%f'))
     logging.getLogger("py4j").setLevel(logging.INFO)
@@ -30,18 +33,27 @@ def get_logger(stream_output=False, file_name=None):
 
 
 def get_spark_session(logger, app_name):
+    """
+    Creates a spark session with the provided app name.
+    """
     logger.debug("Inside get_spark_session function in Utils.py")
     spark = SparkSession.builder.appName(app_name).getOrCreate()
     return spark
 
 
 def get_dbutils(logger, spark):
+    """
+    Creates an instance of dbutils using the spark session provided.
+    """
     logger.debug("Inside get_dbutils function in Utils.py")
     dbutils = DBUtils(spark)
     return dbutils
 
 
 def read_config(logger, config_file):
+    """
+    Reads the config file and creates a dict object with all config params.
+    """
     logger.debug("Inside read_config function in Utils.py")
     configs = dict()
     config = configparser.ConfigParser()
@@ -64,12 +76,18 @@ def read_config(logger, config_file):
 
 
 def download_dataset(logger, url, download_dir):
+    """
+    Downloads the dataset from provided URL to provided directory.
+    """
     logger.debug("Inside download_dataset function in Utils.py")
     urllib.request.urlretrieve(url, download_dir)
     logger.info("Dataset downloaded successfully")
 
 
 def unzip_dataset(logger, zip_dir, unzip_dir):
+    """
+    Unzips the provided dataset zip file in provided directory.
+    """
     logger.debug("Inside unzip_dataset function in Utils.py")
     with zipfile.ZipFile(zip_dir, 'r') as z:
         z.extractall(unzip_dir)
@@ -77,6 +95,9 @@ def unzip_dataset(logger, zip_dir, unzip_dir):
 
 
 def upload_files_to_dbfs(logger, source_dir, target_dir):
+    """
+    Uploads provided files to provided directory in dbfs
+    """
     logger.debug("Inside upload_files_to_dbfs function in Utils.py")
     try:
         subprocess.run(["dbfs", "cp", source_dir, target_dir, "--recursive", "--overwrite"], check=True)
@@ -88,6 +109,9 @@ def upload_files_to_dbfs(logger, source_dir, target_dir):
 
 
 def download_files_from_dbfs(logger, source_dir, target_dir):
+    """
+    Downloads provided files from dbfs to provided directory.
+    """
     logger.debug("Inside download_files_from_dbfs function in Utils.py")
     try:
         subprocess.run(["dbfs", "cp", source_dir, target_dir, "--recursive", "--overwrite"], check=True)
@@ -99,6 +123,9 @@ def download_files_from_dbfs(logger, source_dir, target_dir):
 
 
 def rename_and_clean_output(logger, file_dir, file_name):
+    """
+    Deletes _commit and _success files from provided directory and renames the part csv file to provided name.
+    """
     logger.debug("Inside rename_and_clean_output function in Utils.py")
     for filename in glob.glob(file_dir+'/_*'):
         os.remove(filename)
@@ -110,6 +137,9 @@ def rename_and_clean_output(logger, file_dir, file_name):
 
 
 def cleanup(logger):
+    """
+    Cleans the dbfs used during the etl process.
+    """
     logger.debug("Inside cleanup function in Utils.py")
     try:
         subprocess.run(["dbfs", "rm", "dbfs:/ml-latest-small", "--recursive"], check=True)
