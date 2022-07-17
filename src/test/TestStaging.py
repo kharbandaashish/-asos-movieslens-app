@@ -4,6 +4,7 @@ import logging
 import unittest
 import warnings
 from pyspark.sql.types import *
+from pyspark.sql.functions import *
 from pyspark.sql import SparkSession
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -50,7 +51,7 @@ class TestStaging(unittest.TestCase):
             StructField('userId', LongType(), True),
             StructField('movieId', LongType(), True),
             StructField('rating', FloatType(), True),
-            StructField('timestamp', LongType(), True),
+            StructField('timestamp', TimestampType(), True),
             StructField('yearmo', IntegerType(), True)
         ])
         df1 = self.spark.createDataFrame(
@@ -73,8 +74,11 @@ class TestStaging(unittest.TestCase):
                                      ratings_update_table_name)
         expected_output = self.spark.createDataFrame(
             ([1, 10, 4.5, 964982703, 200007], [1, 11, 4.0, 998787858, 200108], [2, 11, 3.0, 901787858, 199807]),
-            ["userId", "movieId", "rating", "timestamp"]).sort("timestamp").collect()
-        actual_output = self.spark.table("{}.{}".format(self.database_name, ratings_table_name)).sort(
+            ["userId", "movieId", "rating", "timestamp"]).sort(
+            "timestamp").collect()
+        actual_output = self.spark.table("{}.{}".format(self.database_name, ratings_table_name)).withColumn("timestamp",
+                                                                                                            unix_timestamp(
+                                                                                                                col("timestamp"))).sort(
             "timestamp").collect()
         self.assertEqual(actual_output, expected_output)
 
@@ -115,7 +119,7 @@ class TestStaging(unittest.TestCase):
             StructField('userId', LongType(), True),
             StructField('movieId', LongType(), True),
             StructField('tag', StringType(), True),
-            StructField('timestamp', LongType(), True)
+            StructField('timestamp', TimestampType(), True)
         ])
 
         df1 = self.spark.createDataFrame(
@@ -140,7 +144,7 @@ class TestStaging(unittest.TestCase):
             ([1, 10, "alpha", 964982703], [1, 11, "beta", 998787858], [2, 11, "delta", 901787858]),
             ["userId", "movieId", "tag", "timestamp"]).sort("timestamp").collect()
         actual_output = self.spark.table("{}.{}".format(self.database_name, tags_table_name)).sort(
-            "timestamp").collect()
+            "timestamp").withColumn("timestamp", unix_timestamp(col("timestamp"))).collect()
         self.assertEqual(actual_output, expected_output)
 
 

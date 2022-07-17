@@ -23,7 +23,8 @@ def stage_ratings_files(logger, spark, db_name, df, ratings_table_name, ratings_
 
     # Casting columns
     ratings_df = ratings_df.select(col("userId").cast("bigint"), col("movieId").cast("bigint"),
-                                   col("rating").cast("float"), col("timestamp").cast("bigint"),
+                                   col("rating").cast("float"),
+                                   from_unixtime(col("timestamp")).cast("timestamp").alias("timestamp"),
                                    col("yearmo").cast("int"))
 
     ratings_table_flag = check_if_table_exists(logger, spark, db_name, "ratings")
@@ -87,7 +88,7 @@ def stage_tags_files(logger, db_name, df, table_name):
 
     # Casting columns
     tags_df = df.select(col("userId").cast("bigint"), col("movieId").cast("bigint"), col("tag"),
-                        col("timestamp").cast("bigint"))
+                        from_unixtime(col("timestamp")).cast("timestamp").alias("timestamp"))
 
     tags_df.write.mode("overwrite").format("delta").saveAsTable("{}.{}".format(db_name, table_name))
     logger.info("Staged tags files, table created - {}.{}".format(db_name, table_name))
