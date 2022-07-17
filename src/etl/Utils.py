@@ -57,6 +57,7 @@ def read_config(logger, config_file):
     configs['zip_name'] = config['directory']['zip_name']
     configs['datasets_dir'] = config['directory']['datasets_dir']
     configs['output_file_dir'] = config['directory']['output_file_dir']
+    configs['download_data'] = config['controls']['download_data']
     configs['staging_flag'] = config['controls']['staging_flag']
     configs['transformations_flag'] = config['controls']['transformations_flag']
     configs['show_output_flag'] = config['controls']['show_output_flag']
@@ -66,7 +67,7 @@ def read_config(logger, config_file):
 def download_dataset(logger, url, download_dir):
     logger.debug("Inside download_dataset function in Utils.py")
     urllib.request.urlretrieve(url, download_dir)
-    return True
+    logger.info("Dataset downloaded successfully")
 
 
 def unzip_dataset(logger, zip_dir, unzip_dir):
@@ -74,7 +75,6 @@ def unzip_dataset(logger, zip_dir, unzip_dir):
     with zipfile.ZipFile(zip_dir, 'r') as z:
         z.extractall(unzip_dir)
     logger.info("Unzipped in directory - {}".format(unzip_dir))
-    return True
 
 
 def upload_files_to_dbfs(logger, source_dir, target_dir):
@@ -107,8 +107,7 @@ def rename_and_clean_output(logger, file_dir, file_name):
     if f:
         file_name = "{}_{}.csv".format(file_name, datetime.now().strftime('%Y%m%d%H%M%S'))
         os.rename(f[0], os.path.join(file_dir, file_name))
-    return True
-
+    logger.info("Output cleaned and renamed")
 
 def cleanup(logger):
     logger.debug("Inside cleanup function in Utils.py")
@@ -117,8 +116,6 @@ def cleanup(logger):
         subprocess.run(["dbfs", "rm", "dbfs:/part-123", "--recursive"], check=True)
     except Exception as e:
         logger.error(e)
-        return False
     logger.info("Cleanup complete")
-    return True
 
 

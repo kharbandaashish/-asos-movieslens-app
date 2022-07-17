@@ -26,6 +26,7 @@ if __name__ == '__main__':
     zip_name = conf['zip_name']
     datasets_dir = conf["datasets_dir"]
     output_file_dir = conf["output_file_dir"]
+    download_data = conf["download_data"]
     staging_flag = conf["staging_flag"]
     transformations_flag = conf["transformations_flag"]
     logger.info("Creating spark session with app-name - '{}'".format(app_name))
@@ -33,8 +34,9 @@ if __name__ == '__main__':
     logger.info("Setting up databricks utils(dbutils)")
     dbutils = Utils.get_dbutils(logger, spark)
     download_dir = os.path.join(data_dir, zip_name)
-    logger.info("Downloading dataset from URL - {}".format(dataset_url))
-    download_flag = Utils.download_dataset(logger, dataset_url, download_dir)
+    if download_data == "1":
+        logger.info("Downloading dataset from URL - {}".format(dataset_url))
+        download_flag = Utils.download_dataset(logger, dataset_url, download_dir)
     logger.info("Unzipping dataset")
     unzip_flag = Utils.unzip_dataset(logger, download_dir, data_dir)
     logger.info("Uploading files to DBFS")
