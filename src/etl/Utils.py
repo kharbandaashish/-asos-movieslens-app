@@ -5,7 +5,6 @@ import configparser
 import zipfile
 import urllib.request
 import subprocess
-import datetime
 from datetime import datetime
 from pyspark.sql import SparkSession
 from pyspark.dbutils import DBUtils

@@ -1,1 +1,2 @@
+databricks-connect==10.4.6
 urllib3==1.26.7
